@@ -28,6 +28,6 @@ object Day2 {
 
     private fun isSafeDampened(report: Report): Boolean = report
         .indices.asSequence()
-        .map(report::dropAt)
-        .any { isConsistent(it) && isSmooth(it) }
+        .map(report::skipAt)
+        .any(::isSafe)
 }
