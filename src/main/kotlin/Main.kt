@@ -1,4 +1,4 @@
 fun main() {
-    val input = readInputFile(1)
-    println(Day1.part1(input))
+    val input = readPuzzleInput(2)
+    println(Day2.part2(input))
 }

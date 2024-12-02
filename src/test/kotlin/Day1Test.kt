@@ -3,9 +3,14 @@ import kotlin.test.assertEquals
 
 class Day1Test {
     @Test
-    fun testPart1() {
+    fun part1Test() {
         val input = readTestInput(1)
-        val res = Day1.part1(input)
-        assertEquals(11, res)
+        assertEquals(11, Day1.part1(input))
+    }
+
+    @Test
+    fun part2Test() {
+        val input = readTestInput(1)
+        assertEquals(31, Day1.part2(input))
     }
 }
