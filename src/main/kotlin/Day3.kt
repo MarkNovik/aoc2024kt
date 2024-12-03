@@ -7,25 +7,30 @@ object Day3 : AOC(3) {
         }
     }
 
-    override fun part1(input: String): Long = parseInput(input)
-        .filterIsInstance<Command.Mul>()
+    override fun part1(input: String): Long = parseMul(input)
         .sumOf(Command.Mul::product)
 
-    override fun part2(input: String): Long =
-        Regex("""(do|don't|mul)\((?:(\d+),(\d+))?\)""")
-            .findAll(input)
-            .fold(0L to true) { (acc, active), next ->
-                val (name, a, b) = next.destructured
-                when (name) {
-                    "do" -> acc to true
-                    "don't" -> acc to false
-                    "mul" if active -> (acc + a.toLong() * b.toLong()) to true
-                    "mul" -> acc to false
-                    else -> error("Invalid command `$name` at ${next.range}")
-                }
-            }.first
+    override fun part2(input: String): Long = parseCommands(input)
+        .fold(0L to true) { (acc, active), com ->
+            when (com) {
+                Command.Do -> acc to true
+                Command.Dont -> acc to false
+                is Command.Mul -> Pair(
+                    if (active) acc + com.a * com.b else acc,
+                    active
+                )
+            }
+        }.first
 
-    fun parseInput(input: String): Sequence<Command> =
+    fun parseMul(input: String): Sequence<Command.Mul> =
+        Regex("""mul\((\d+),(\d+)\)""")
+            .findAll(input)
+            .map {
+                val (a, b) = it.destructured
+                Command.Mul(a.toLong(), b.toLong())
+            }
+
+    fun parseCommands(input: String): Sequence<Command> =
         Regex("""(do|don't|mul)\((?:(\d+),(\d+))?\)""")
             .findAll(input)
             .map {
