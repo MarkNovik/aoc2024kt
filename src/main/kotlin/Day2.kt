@@ -2,11 +2,11 @@ import kotlin.math.sign
 
 private typealias Report = List<Int>
 
-object Day2 {
-    fun part1(input: String): Int = parseReports(input)
+object Day2: AOC(2) {
+    override fun part1(input: String): Int = parseReports(input)
         .count(::isSafe)
 
-    fun part2(input: String): Int = parseReports(input)
+    override fun part2(input: String): Int = parseReports(input)
         .count(::isSafeDampened)
 
     private fun parseReports(input: String): List<Report> = input
