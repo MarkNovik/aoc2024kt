@@ -1,8 +1,8 @@
-object Day1: AOC(1) {
-    override fun part1(input: String): Int {
-        val (left, right) = parseInput(input)
-        return left.sorted().zip(right.sorted(), ::distance).sum()
-    }
+object Day1 : AOC(1) {
+    override fun part1(input: String): Int = parseInput(input)
+        .map(List<Int>::sorted)
+        .transpose()
+        .sumOf { it.reduce(::distance) }
 
     override fun part2(input: String): Int {
         val (left, b) = parseInput(input)
@@ -10,10 +10,8 @@ object Day1: AOC(1) {
         return left.sumOf { it * right.getValue(it) }
     }
 
-    private fun parseInput(input: String): Pair<List<Int>, List<Int>> = input
+    private fun parseInput(input: String): List<List<Int>> = input
         .lines()
-        .map {
-            val (a, b) = it.words().map(String::toInt)
-            a to b
-        }.unzip()
+        .map { it.words().map(String::toInt) }
+        .transpose()
 }

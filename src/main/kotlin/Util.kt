@@ -9,5 +9,7 @@ fun String.words() = split(Regex("\\s+"))
 
 fun distance(a: Int, b: Int): Int = abs(a - b)
 
-fun <T> List<T>.skipAt(index: Int): List<T> =
-    slice((0..<index) + ((index + 1)..<size))
+fun <T> List<T>.skipAt(index: Int): List<T> = slice((0..<index) + ((index + 1)..<size))
+
+fun <T> List<List<T>>.transpose(): List<List<T>> =
+    (this[0].indices).map { i -> (this.indices).map { j -> this[j][i] } }
