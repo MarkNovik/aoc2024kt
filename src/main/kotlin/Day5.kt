@@ -35,12 +35,12 @@ object Day5 : AOC(5) {
         val updates = u.lines().map { it.split(',').map(String::toLong) }
         return rules to updates
     }
-}
 
-private fun Update.isCorrect(rules: Rules): Boolean =
-    rules.all { (k, v) ->
-        val ki = indexOf(k)
-        v.map(::indexOf).all {
-            (it == -1 || ki == -1) || it > ki
+    private fun Update.isCorrect(rules: Rules): Boolean =
+        rules.all { (k, v) ->
+            val ki = indexOf(k)
+            v.map(::indexOf).all {
+                (it == -1 || ki == -1) || it > ki
+            }
         }
-    }
+}
