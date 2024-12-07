@@ -4,8 +4,13 @@ object Day6 : AOC(6) {
         return generateSequence(guard) { it.advance(map) }.distinctBy(Guard::pos).count()
     }
 
-    override fun part2(input: String): Int {
-        return -1
+    override fun part2(input: String): Long {
+        val (map, guard) = parseInput(input)
+
+        return (generateSequence(guard) { it.advance(map) }.map(Guard::pos).toSet() - guard.pos)
+            .parallelStream()
+            .filter { guard.loopsIfPlaceObstacleAt(it, map) }
+            .count()
     }
 
     private fun parseInput(input: String): Pair<TerritoryMap, Guard> {
@@ -36,46 +41,57 @@ private enum class Direction(val dx: Int, val dy: Int) {
     Down(0, 1),
     Left(-1, 0);
 
-    fun next() = entries[(ordinal + 1) % entries.size]
+    fun next(times: Int = 1) = entries[(ordinal + times) % entries.size]
 }
 
-private class TerritoryMap(val cells: List<List<Cell>>) {
+private data class TerritoryMap(val width: Int, val height: Int, val obstacles: Set<Position>) {
+    constructor(cells: List<List<Cell>>) : this(
+        cells.first().size,
+        cells.size,
+        cells.flatMapIndexed { y: Int, line: List<Cell> ->
+            line.mapIndexedNotNull { x, cell ->
+                Position(
+                    x,
+                    y
+                ).takeIf { cell == Cell.Obstacle }
+            }
+        }.toSet())
 
-    fun getOrNull(x: Int, y: Int): Cell? = cells.getOrNull(y)?.getOrNull(x)
+    operator fun contains(pos: Position) = pos.y in 0..<height && pos.x in 0..<width
 
-    @Suppress("unused")
-    fun replace(pos: Position, replacement: Cell): TerritoryMap? =
-        if (pos.y in cells.indices && pos.x in cells[pos.y].indices)
-            TerritoryMap(cells.mapIndexed { y, line ->
-                line.mapIndexed { x, cell ->
-                    if (Position(
-                            x,
-                            y
-                        ) == pos
-                    ) replacement else cell
-                }
-            })
+    fun getOrNull(pos: Position): Cell? = when (pos) {
+        !in this -> null
+        in obstacles -> Cell.Obstacle
+        else -> Cell.Space
+    }
+
+    fun withObstacleAt(pos: Position): TerritoryMap? =
+        if (pos in this) copy(obstacles = obstacles + pos)
         else null
 
 }
 
 
 private data class Guard(val pos: Position, val dir: Direction = Direction.Up) {
-    fun rotate(): Guard = copy(
-        dir = dir.next()
+    fun rotate(times: Int = 1): Guard = copy(
+        dir = dir.next(times)
     )
-
 
     fun move() = copy(
         pos = targetPosition()
     )
 
-    fun advance(map: TerritoryMap): Guard? {
-        val (tx, ty) = targetPosition()
-        return when (map.getOrNull(tx, ty) ?: return null) {
+    fun advance(map: TerritoryMap): Guard? =
+        when (map.getOrNull(targetPosition())) {
+            null -> null
             Cell.Space -> move()
             Cell.Obstacle -> rotate()
         }
+
+    fun loopsIfPlaceObstacleAt(pos: Position, map: TerritoryMap): Boolean {
+        val test = map.withObstacleAt(pos) ?: return false
+        val visited = mutableSetOf<Guard>()
+        return generateSequence(this) { it.advance(test) }.find { !visited.add(it) } != null
     }
 
     fun targetPosition(): Position = Position(pos.x + dir.dx, pos.y + dir.dy)
