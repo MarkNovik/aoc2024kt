@@ -31,8 +31,6 @@ object Day6 : AOC(6) {
     }
 }
 
-private data class Position(val x: Int, val y: Int)
-
 private enum class Cell { Space, Obstacle }
 
 private enum class Direction(val dx: Int, val dy: Int) {
@@ -91,7 +89,7 @@ private data class Guard(val pos: Position, val dir: Direction = Direction.Up) {
     fun loopsIfPlaceObstacleAt(pos: Position, map: TerritoryMap): Boolean {
         val test = map.withObstacleAt(pos) ?: return false
         val visited = mutableSetOf<Guard>()
-        return generateSequence(this) { it.advance(test) }.find { !visited.add(it) } != null
+        return generateSequence(this) { it.advance(test) }.any { !visited.add(it) }
     }
 
     fun targetPosition(): Position = Position(pos.x + dir.dx, pos.y + dir.dy)

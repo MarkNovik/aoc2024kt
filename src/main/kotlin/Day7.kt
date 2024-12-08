@@ -36,6 +36,7 @@ private inline fun <reified T> Stream<T>.sumOf(noinline f: (T) -> ULong): ULong 
     map(f).reduce(0UL, ULong::plus)
 
 private fun ULong.concat(other: ULong): ULong = (this.toString() + other.toString()).toULong()
+
 private fun ULong.canBeMadeWith(elements: List<ULong>, operations: List<Op>, acc: ULong = 0UL): Boolean = when {
     elements.isEmpty() -> this == acc
     else -> {

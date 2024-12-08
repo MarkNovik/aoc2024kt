@@ -12,6 +12,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("reflect"))
+    implementation("com.michael-bull.kotlin-itertools:kotlin-itertools:1.0.0")
 }
 
 tasks.test {
@@ -20,7 +21,4 @@ tasks.test {
 
 kotlin {
     jvmToolchain(17)
-    compilerOptions {
-        freeCompilerArgs.add("-Xwhen-guards")
-    }
 }
