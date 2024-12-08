@@ -40,8 +40,7 @@ private fun ULong.concat(other: ULong): ULong = (this.toString() + other.toStrin
 private fun ULong.canBeMadeWith(elements: List<ULong>, operations: List<Op>, acc: ULong = 0UL): Boolean = when {
     elements.isEmpty() -> this == acc
     else -> {
-        val head = elements.first()
-        val tail = elements.drop(1)
+        val (head, tail) = elements.chopFirst()
         operations.any {
             canBeMadeWith(tail, operations, it(acc, head))
         }

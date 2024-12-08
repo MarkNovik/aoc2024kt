@@ -27,3 +27,5 @@ fun <T> List<T>.skipAt(index: Int): List<T> = slice((0..<index) + ((index + 1)..
 
 fun <T> List<List<T>>.transpose(): List<List<T>> =
     (this[0].indices).map { i -> (this.indices).map { j -> this[j][i] } }
+
+fun <T> List<T>.chopFirst() = first() to drop(1)
