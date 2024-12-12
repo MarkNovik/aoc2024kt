@@ -1,11 +1,10 @@
 object Day4 : AOC(4) {
     override fun part1(input: String): Int {
         val mat = parseInput(input)
-        val slopes = listOf(0 to 1, 0 to -1, 1 to 0, -1 to 0, 1 to 1, 1 to -1, -1 to 1, -1 to -1).map(::Offset)
         return mat.cells()
             .filter { it.value == 'X' }
             .sumOf { (pos, _) ->
-                slopes.count { slope ->
+                Offset.entries.count { slope ->
                     mat.hasXmasAt(pos, slope)
                 }
             }
@@ -18,7 +17,7 @@ object Day4 : AOC(4) {
 
     private fun parseInput(input: String) = Matrix(input.lines())
 
-    private fun Matrix.hasMasCrossAt(pos: Offset): Boolean {
+    private fun Matrix.hasMasCrossAt(pos: Position): Boolean {
         fun hasMasAt(m: Offset): Boolean {
             val ms = (getOrNull(pos + m) == 'M' && getOrNull(pos - m) == 'S')
             val sm = (getOrNull(pos + m) == 'S' && getOrNull(pos - m) == 'M')
@@ -26,10 +25,10 @@ object Day4 : AOC(4) {
         }
 
         if (getOrNull(pos) != 'A') return false
-        return hasMasAt(Offset(1, 1)) && hasMasAt(Offset(1, -1))
+        return hasMasAt(Offset.DownRight) && hasMasAt(Offset.UpRight)
     }
 
-    private tailrec fun Matrix.hasXmasAt(pos: Offset, slope: Offset, lookingFor: String = "XMAS"): Boolean =
+    private tailrec fun Matrix.hasXmasAt(pos: Position, slope: Offset, lookingFor: String = "XMAS"): Boolean =
         when {
             lookingFor.length == 1 -> getOrNull(pos) == lookingFor.first()
             getOrNull(pos) != lookingFor.first() -> false
@@ -37,24 +36,17 @@ object Day4 : AOC(4) {
         }
 }
 
-private data class Offset(val x: Int, val y: Int) {
-    constructor(p: Pair<Int, Int>) : this(p.first, p.second)
-
-    operator fun plus(other: Offset) = Offset(x + other.x, y + other.y)
-    operator fun minus(other: Offset) = Offset(x - other.x, y - other.y)
-}
-
 private class Matrix(
     val lines: List<String>
 ) {
-    data class Cell(val pos: Offset, val value: Char)
+    data class Cell(val pos: Position, val value: Char)
 
-    fun getOrNull(at: Offset) = lines.getOrNull(at.y)?.getOrNull(at.x)
+    fun getOrNull(at: Position) = lines.getOrNull(at.y)?.getOrNull(at.x)
 
     fun cells(): Sequence<Cell> = sequence {
         lines.forEachIndexed { y, line ->
             line.forEachIndexed { x, ch ->
-                yield(Cell(Offset(x, y), ch))
+                yield(Cell(Position(x, y), ch))
             }
         }
     }
