@@ -14,4 +14,11 @@ class Day7Test {
     fun part2Test() {
         assertEquals(11387UL, Day7.part2(input))
     }
+
+    @Test
+    fun realInputTest() {
+        val realInput = readPuzzleInput(7)
+        assertEquals(4555081946288UL, Day7.part1(realInput))
+        assertEquals(227921760109726UL, Day7.part2(realInput))
+    }
 }
