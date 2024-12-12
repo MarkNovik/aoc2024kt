@@ -1,7 +1,7 @@
 import kotlin.time.measureTimedValue
 
 fun main() =
-    AOC::class.sealedSubclasses.mapNotNull { it.objectInstance }.forEach {
+    AOC::class.sealedSubclasses.mapNotNull { it.objectInstance }.sortedBy { it.day }.forEach {
         val input = readPuzzleInput(it.day)
         println("Day ${it.day}:")
         println("\tPart 1: ${time { it.part1(input) }}")
