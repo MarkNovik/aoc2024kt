@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.time.measureTime
 
 class Day9Test {
 
@@ -19,6 +18,6 @@ class Day9Test {
     @Test
     fun realInputTest() {
         val realInput = readPuzzleInput(9)
-        println("Part 2:" + measureTime { assertEquals(6363913128533, Day9.part2(realInput)) })
+        println(assertEquals(6363913128533, Day9.part2(realInput)))
     }
 }

@@ -63,3 +63,11 @@ fun <T> List<T>.chopFirst() = first() to drop(1)
 operator fun <T> List<List<T>>.get(pos: Position) = this[pos.y][pos.x]
 
 fun <T> List<List<T>>.getOrNull(pos: Position): T? = getOrNull(pos.y)?.getOrNull(pos.x)
+
+fun IntArray.swap(i: Int, j: Int) {
+    require(i in indices)
+    require(j in indices)
+    val temp = get(i)
+    set(i, get(j))
+    set(j, temp)
+}

@@ -4,8 +4,7 @@ object Day9 : AOC(9) {
         var firstNull = mem.indexOf(-1)
         var lastNum = mem.indexOfLast { it >= 0 }
         while (firstNull < lastNum) {
-            mem[firstNull++] = mem[lastNum]
-            mem[lastNum--] = -1
+            mem.swap(firstNull++, lastNum--)
             while (mem[firstNull] != -1) firstNull++
             while (mem[lastNum] == -1) lastNum--
         }
@@ -19,10 +18,10 @@ object Day9 : AOC(9) {
     override fun part2(input: String): Long {
         val mem = parseChunks(input).toMutableList()
         val (nums, spaces) = mem.indices.partition { mem[it].id != -1 }.toList().map { it.toMutableList() }
-        while (nums.isNotEmpty())  {
+        while (nums.isNotEmpty()) {
             val numIndex = nums.removeLast()
             spaces.retainAll { it < numIndex }
-            val spaceIndex =  spaces.find { mem[it].size >= mem[numIndex].size } ?: continue
+            val spaceIndex = spaces.find { mem[it].size >= mem[numIndex].size } ?: continue
             val (newChunk, rest) = mem[spaceIndex].allocate(mem[numIndex].size, mem[numIndex].id)
             mem[spaceIndex] = newChunk
             mem[numIndex] = mem[numIndex].copy(id = -1)
