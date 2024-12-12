@@ -18,20 +18,27 @@ object Day9 : AOC(9) {
 
     override fun part2(input: String): Long {
         val mem = parseChunks(input).toMutableList()
-        var numIndex = mem.indexOfLast { it.id != -1 }
-        var id = mem[numIndex].id
-        out@ while (id > -1) {
-            val nullIndex = mem.take(numIndex).indexOfFirst { it.id == -1 && it.size >= mem[numIndex].size }
-            if (nullIndex == -1) {
-                id--
-                while (mem[numIndex].id != id) if (--numIndex < 0) continue@out
-                continue
+        val (nums, spaces) = mem.indices.partition { mem[it].id != -1 }.toList().map { it.toMutableList() }
+        while (nums.isNotEmpty())  {
+            val numIndex = nums.removeLast()
+            spaces.retainAll { it < numIndex }
+            val spaceIndex =  spaces.find { mem[it].size >= mem[numIndex].size } ?: continue
+            val (newChunk, rest) = mem[spaceIndex].allocate(mem[numIndex].size, mem[numIndex].id)
+            mem[spaceIndex] = newChunk
+            mem[numIndex] = mem[numIndex].copy(id = -1)
+            if (rest != null) {
+                mem.add(spaceIndex + 1, rest)
+                nums.replaceAll {
+                    if (it >= spaceIndex) it + 1
+                    else it
+                }
+                spaces.replaceAll {
+                    if (it >= spaceIndex) it + 1
+                    else it
+                }
+            } else {
+                spaces.remove(spaceIndex)
             }
-            val rest = mem[nullIndex].split(mem[numIndex].size, id)
-            mem[numIndex].id = -1
-            mem.add(nullIndex + 1, rest)
-            id--
-            while (mem[numIndex].id != id) if (--numIndex < 0) break@out
         }
         return mem.flatten().foldIndexed(0L) { index: Int, acc: Long, next: Int ->
             acc + (index * next.coerceAtLeast(0))
@@ -63,17 +70,16 @@ object Day9 : AOC(9) {
 }
 
 private data class Chunk(
-    var size: Int,
-    var id: Int
+    val size: Int,
+    val id: Int
 ) : Iterable<Int> {
-    fun split(at: Int, newId: Int): Chunk {
-        val res = Chunk(size - at, id)
-        size = at
-        id = newId
-        return res
-    }
+    fun allocate(at: Int, newId: Int): Pair<Chunk, Chunk?> =
+        Chunk(at, newId) to Chunk(size - at, id).takeIf { it.size > 0 }
 
     override fun iterator(): Iterator<Int> = iterator {
         repeat(size) { yield(id) }
     }
+
+    override fun toString(): String =
+        if (id == -1) ".".repeat(size) else id.toString().repeat(size)
 }
