@@ -1,5 +1,4 @@
 import java.math.BigInteger
-import kotlin.math.min
 
 object Day13 : AOC(13) {
     override fun part1(input: String): BigInteger = parseInput(input, BigInteger.ZERO)
