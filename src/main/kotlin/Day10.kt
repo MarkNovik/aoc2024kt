@@ -3,12 +3,12 @@ object Day10 : AOC(10) {
 
     override fun part2(input: String): Int = solve(input, ::mutableListOf)
 
-    private fun solve(input: String, acc: () -> MutableCollection<Position>): Int {
+    private fun solve(input: String, acc: () -> MutableCollection<Vec2>): Int {
         val map = parseInput(input)
         return map.withIndex().sumOf { (y, line) ->
             line.withIndex().sumOf { (x, height) ->
                 if (height == 0)
-                    trailDestinations(acc(), map, Position(x, y)).size else 0
+                    trailDestinations(acc(), map, Vec2(x, y)).size else 0
             }
         }
     }
@@ -17,10 +17,10 @@ object Day10 : AOC(10) {
         .lines()
         .map { it.map(Char::digitToInt) }
 
-    private fun <C : MutableCollection<Position>> trailDestinations(
+    private fun <C : MutableCollection<Vec2>> trailDestinations(
         to: C,
         at: List<List<Int>>,
-        from: Position,
+        from: Vec2,
         currentHeight: Int = at[from],
     ): C =
         if (currentHeight == 9) to.apply { add(from) }

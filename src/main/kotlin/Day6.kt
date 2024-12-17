@@ -19,7 +19,7 @@ object Day6 : AOC(6) {
             line.mapIndexed { x, ch ->
                 when (ch) {
                     '^' -> {
-                        guard = Guard(Position(x, y))
+                        guard = Guard(Vec2(x, y))
                         Cell.Space
                     }
 
@@ -42,35 +42,35 @@ private enum class Direction(val dx: Int, val dy: Int) {
     fun next(times: Int = 1) = entries[(ordinal + times) % entries.size]
 }
 
-private data class TerritoryMap(val width: Int, val height: Int, val obstacles: Set<Position>) {
+private data class TerritoryMap(val width: Int, val height: Int, val obstacles: Set<Vec2>) {
     constructor(cells: List<List<Cell>>) : this(
         cells.first().size,
         cells.size,
         cells.flatMapIndexed { y: Int, line: List<Cell> ->
             line.mapIndexedNotNull { x, cell ->
-                Position(
+                Vec2(
                     x,
                     y
                 ).takeIf { cell == Cell.Obstacle }
             }
         }.toSet())
 
-    operator fun contains(pos: Position) = pos.y in 0..<height && pos.x in 0..<width
+    operator fun contains(pos: Vec2) = pos.y in 0..<height && pos.x in 0..<width
 
-    fun getOrNull(pos: Position): Cell? = when (pos) {
+    fun getOrNull(pos: Vec2): Cell? = when (pos) {
         !in this -> null
         in obstacles -> Cell.Obstacle
         else -> Cell.Space
     }
 
-    fun withObstacleAt(pos: Position): TerritoryMap? =
+    fun withObstacleAt(pos: Vec2): TerritoryMap? =
         if (pos in this) copy(obstacles = obstacles + pos)
         else null
 
 }
 
 
-private data class Guard(val pos: Position, val dir: Direction = Direction.Up) {
+private data class Guard(val pos: Vec2, val dir: Direction = Direction.Up) {
     fun rotate(times: Int = 1): Guard = copy(
         dir = dir.next(times)
     )
@@ -86,11 +86,11 @@ private data class Guard(val pos: Position, val dir: Direction = Direction.Up) {
             Cell.Obstacle -> rotate()
         }
 
-    fun loopsIfPlaceObstacleAt(pos: Position, map: TerritoryMap): Boolean {
+    fun loopsIfPlaceObstacleAt(pos: Vec2, map: TerritoryMap): Boolean {
         val test = map.withObstacleAt(pos) ?: return false
         val visited = mutableSetOf<Guard>()
         return generateSequence(this) { it.advance(test) }.any { !visited.add(it) }
     }
 
-    fun targetPosition(): Position = Position(pos.x + dir.dx, pos.y + dir.dy)
+    fun targetPosition(): Vec2 = Vec2(pos.x + dir.dx, pos.y + dir.dy)
 }

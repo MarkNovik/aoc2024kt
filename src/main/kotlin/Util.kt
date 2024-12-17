@@ -1,28 +1,48 @@
 import java.io.File
+import java.math.BigInteger
 import kotlin.math.abs
 
-data class Position(val x: Int, val y: Int) {
-    operator fun plus(other: Position) = Position(
+data class Vec2(val x: Int, val y: Int) {
+    operator fun plus(other: Vec2) = Vec2(
         this.x + other.x,
         this.y + other.y
     )
 
-    operator fun plus(o: Offset) = Position(
+    operator fun plus(o: Offset) = Vec2(
         x + o.dx,
         y + o.dy
     )
 
-    operator fun minus(other: Position) = Position(
+    operator fun minus(other: Vec2) = Vec2(
         this.x - other.x,
         this.y - other.y
     )
 
-    operator fun minus(o: Offset) = Position(
+    operator fun minus(o: Offset) = Vec2(
         x - o.dx,
         y - o.dy
     )
 
     fun inBoundsOf(width: Int, height: Int): Boolean = x in 0..<width && y in 0..<height
+
+    override fun toString(): String = "($x, $y)"
+}
+
+data class BigPosition(val x: BigInteger, val y: BigInteger) {
+    operator fun plus(other: BigPosition) = BigPosition(
+        this.x + other.x,
+        this.y + other.y
+    )
+
+    operator fun minus(other: BigPosition) = BigPosition(
+        this.x - other.x,
+        this.y - other.y
+    )
+
+    operator fun times(coefficient: BigInteger): BigPosition = BigPosition(
+        x * coefficient,
+        y * coefficient
+    )
 
     override fun toString(): String = "($x, $y)"
 }
@@ -60,9 +80,9 @@ fun <T> List<List<T>>.transpose(): List<List<T>> =
 
 fun <T> List<T>.chopFirst() = first() to drop(1)
 
-operator fun <T> List<List<T>>.get(pos: Position) = this[pos.y][pos.x]
+operator fun <T> List<List<T>>.get(pos: Vec2) = this[pos.y][pos.x]
 
-fun <T> List<List<T>>.getOrNull(pos: Position): T? = getOrNull(pos.y)?.getOrNull(pos.x)
+fun <T> List<List<T>>.getOrNull(pos: Vec2): T? = getOrNull(pos.y)?.getOrNull(pos.x)
 
 fun IntArray.swap(i: Int, j: Int) {
     require(i in indices)
@@ -71,3 +91,19 @@ fun IntArray.swap(i: Int, j: Int) {
     set(i, get(j))
     set(j, temp)
 }
+
+fun <T, U : Comparable<U>> Iterable<T>.minOfNotNullOrNull(transform: (T) -> U?): U? {
+    val iter = iterator()
+    if (!iter.hasNext()) return null
+    var acc = transform(iter.next())
+    while (iter.hasNext()) {
+        val next = transform(iter.next())
+        when {
+            acc != null && next != null -> acc = minOf(acc, next)
+            next != null -> acc = next
+        }
+    }
+    return acc
+}
+
+fun Boolean.toInt(): Int = if (this) 1 else 0

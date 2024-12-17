@@ -33,14 +33,14 @@ object Day8 : AOC(8) {
         val antennas = input
             .lineSequence().flatMapIndexed { y: Int, line: String ->
                 line.mapIndexedNotNull { x, c ->
-                    if (c.isLetterOrDigit()) c to Position(x, y) else null
+                    if (c.isLetterOrDigit()) c to Vec2(x, y) else null
                 }
             }.groupingBy { it.first }
-            .aggregate { _, accumulator: MutableSet<Position>?, (_, pos), _ ->
+            .aggregate { _, accumulator: MutableSet<Vec2>?, (_, pos), _ ->
                 accumulator?.apply { add(pos) } ?: mutableSetOf(pos)
             }.toMap()
         return Triple(width, height, antennas)
     }
 }
 
-private typealias AntennaMap = Map<Char, Set<Position>>
+private typealias AntennaMap = Map<Char, Set<Vec2>>
