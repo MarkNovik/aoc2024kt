@@ -83,6 +83,7 @@ fun <T> List<T>.chopFirst() = first() to drop(1)
 operator fun <T> List<List<T>>.get(pos: Vec2) = this[pos.y][pos.x]
 
 fun <T> List<List<T>>.getOrNull(pos: Vec2): T? = getOrNull(pos.y)?.getOrNull(pos.x)
+operator fun <T> List<MutableList<T>>.set(pos: Vec2, value: T) = get(pos.y).set(pos.x, value)
 
 fun IntArray.swap(i: Int, j: Int) {
     require(i in indices)
