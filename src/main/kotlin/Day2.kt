@@ -1,8 +1,8 @@
+import arrow.core.compose
+import arrow.core.partially2
 import kotlin.math.sign
 
-private typealias Report = List<Int>
-
-object Day2: AOC(2) {
+object Day2 : AOC(2) {
     override fun part1(input: String): Int = parseReports(input)
         .count(::isSafe)
 
@@ -11,7 +11,7 @@ object Day2: AOC(2) {
 
     private fun parseReports(input: String): List<Report> = input
         .lines()
-        .map { it.words().map(String::toInt) }
+        .map(specify<_, LMap<String, Int>>(List<String>::map).partially2(String::toInt) compose String::words)
 
     private fun isConsistent(report: Report): Boolean = report
         .asSequence()
@@ -31,3 +31,5 @@ object Day2: AOC(2) {
         .map(report::skipAt)
         .any(::isSafe)
 }
+
+private typealias Report = List<Int>

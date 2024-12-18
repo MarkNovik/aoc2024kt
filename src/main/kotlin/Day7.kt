@@ -1,7 +1,5 @@
 import java.util.stream.Stream
 
-private typealias Op = (ULong, ULong) -> ULong
-
 object Day7 : AOC(7) {
     override fun part1(input: String): ULong =
         parseInput(input)
@@ -12,7 +10,7 @@ object Day7 : AOC(7) {
                     listOf<Op>(ULong::plus, ULong::times)
                 )
             }
-            .sumOf { it.first }
+            .sumOf(Equation::first)
 
 
     override fun part2(input: String): ULong =
@@ -26,11 +24,15 @@ object Day7 : AOC(7) {
             }
             .sumOf { it.first }
 
-    private fun parseInput(input: String): List<Pair<ULong, List<ULong>>> = input.lines().map {
+    private fun parseInput(input: String): List<Equation> = input.lines().map {
         val (res, elements) = it.split(":")
         res.trim().toULong() to elements.trim().split(Regex("\\D+")).map(String::toULong)
     }
 }
+
+private typealias Equation = Pair<ULong, List<ULong>>
+
+private typealias Op = (ULong, ULong) -> ULong
 
 private inline fun <reified T> Stream<T>.sumOf(noinline f: (T) -> ULong): ULong =
     map(f).reduce(0UL, ULong::plus)

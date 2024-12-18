@@ -5,7 +5,7 @@ object Day11 : AOC(11) {
         val stones = parseInput(input)
         val cache = mutableMapOf<Pair<Long, UInt>, Long>()
         return stones.fold(0L) { acc, stone ->
-            acc + blink(stone, cache, 25u)
+            acc + blink(cache, stone, 25u)
         }
     }
 
@@ -13,27 +13,27 @@ object Day11 : AOC(11) {
         val stones = parseInput(input)
         val cache = mutableMapOf<Pair<Long, UInt>, Long>()
         return stones.fold(0L) { acc, stone ->
-            acc + blink(stone, cache, 75u)
+            acc + blink(cache, stone, 75u)
         }
     }
 
     private fun blink(
-        stone: Long,
         cache: MutableMap<Pair<Long, UInt>, Long>,
+        stone: Long,
         stopAt: UInt,
         blinks: UInt = 0u,
     ): Long =
         if (blinks >= stopAt) 1
         else cache.getOrPut(stone to blinks) {
-            if (stone == 0L) blink(1, cache, stopAt, blinks + 1u)
+            if (stone == 0L) blink(cache, 1, stopAt, blinks + 1u)
             else {
                 val len = stone.length()
                 if (len % 2 == 0) {
                     val divisor = 10.0.pow(len / 2).toLong()
                     val left = stone / divisor
                     val right = stone % divisor
-                    blink(left, cache, stopAt, blinks + 1u) + blink(right, cache, stopAt, blinks + 1u)
-                } else blink(stone * 2024, cache, stopAt, blinks + 1u)
+                    blink(cache, left, stopAt, blinks + 1u) + blink(cache, right, stopAt, blinks + 1u)
+                } else blink(cache, stone * 2024, stopAt, blinks + 1u)
             }
         }
 

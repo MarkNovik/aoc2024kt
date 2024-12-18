@@ -23,6 +23,10 @@ data class Vec2(val x: Int, val y: Int) {
         y - o.dy
     )
 
+    operator fun unaryMinus(): (Vec2) -> Vec2 = { it - this }
+
+    operator fun unaryPlus(): (Vec2) -> Vec2 = { it + this }
+
     fun inBoundsOf(width: Int, height: Int): Boolean = x in 0..<width && y in 0..<height
 
     override fun toString(): String = "($x, $y)"
@@ -108,3 +112,8 @@ fun <T, U : Comparable<U>> Iterable<T>.minOfNotNullOrNull(transform: (T) -> U?):
 }
 
 fun Boolean.toInt(): Int = if (this) 1 else 0
+
+typealias LMap<A, B> = (List<A>, (A) -> B) -> List<B>
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <R, F: Function<R>> specify(f: F): F = f

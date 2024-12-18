@@ -1,10 +1,9 @@
-private typealias Update = List<Long>
-private typealias Rules = Map<Long, Set<Long>>
+import arrow.core.partially2
 
 object Day5 : AOC(5) {
     override fun part1(input: String): Long {
         val (rules, updates) = parseInput(input)
-        return updates.filter { it.isCorrect(rules) }
+        return updates.filter(Update::isCorrect.partially2(rules))
             .sumOf {
                 it[it.size / 2]
             }
@@ -35,12 +34,15 @@ object Day5 : AOC(5) {
         val updates = u.lines().map { it.split(',').map(String::toLong) }
         return rules to updates
     }
-
-    private fun Update.isCorrect(rules: Rules): Boolean =
-        rules.all { (k, v) ->
-            val ki = indexOf(k)
-            v.map(::indexOf).all {
-                (it == -1 || ki == -1) || it > ki
-            }
-        }
 }
+
+private typealias Update = List<Long>
+private typealias Rules = Map<Long, Set<Long>>
+
+private fun Update.isCorrect(rules: Rules): Boolean =
+    rules.all { (k, v) ->
+        val ki = indexOf(k)
+        v.map(::indexOf).all {
+            (it == -1 || ki == -1) || it > ki
+        }
+    }

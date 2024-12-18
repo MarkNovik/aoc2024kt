@@ -1,6 +1,10 @@
 object Day12 : AOC(12) {
     override fun part1(input: String): Int =
-        separateRegions(parseInput(input)).sumOf { it.area * it.perimeter }
+        /*
+        times(area, perimeter)
+         */
+        separateRegions(parseInput(input))
+            .sumOf { it.area * it.perimeter }
 
     override fun part2(input: String): String = "TODO"
 

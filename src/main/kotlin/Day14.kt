@@ -1,3 +1,6 @@
+import arrow.core.compose
+import java.util.Objects
+
 object Day14 : AOC(14) {
     var width = 101
     var height = 103
@@ -6,7 +9,7 @@ object Day14 : AOC(14) {
         .map { it.move(100, width, height) }
         .groupingBy { it.quadrant(width, height) }
         .eachCount()
-        .filterKeys { it != null }
+        .filterNot(Objects::isNull compose Map.Entry<Int?, Int>::key)
         .values.reduce(Int::times)
 
 
