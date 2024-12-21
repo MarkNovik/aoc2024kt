@@ -1,5 +1,10 @@
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import java.io.File
 import java.math.BigInteger
+import kotlin.IllegalArgumentException
+import kotlin.NoSuchElementException
 import kotlin.math.abs
 
 data class Vec2(val x: Int, val y: Int) {
@@ -28,22 +33,23 @@ data class Vec2(val x: Int, val y: Int) {
     operator fun unaryPlus(): (Vec2) -> Vec2 = { it + this }
 
     fun inBoundsOf(width: Int, height: Int): Boolean = x in 0..<width && y in 0..<height
+    fun outOfBoundsOf(width: Int, height: Int): Boolean = x !in 0..<width || y !in 0..<height
 
     override fun toString(): String = "($x, $y)"
 }
 
-data class BigPosition(val x: BigInteger, val y: BigInteger) {
-    operator fun plus(other: BigPosition) = BigPosition(
+data class BigVec2(val x: BigInteger, val y: BigInteger) {
+    operator fun plus(other: BigVec2) = BigVec2(
         this.x + other.x,
         this.y + other.y
     )
 
-    operator fun minus(other: BigPosition) = BigPosition(
+    operator fun minus(other: BigVec2) = BigVec2(
         this.x - other.x,
         this.y - other.y
     )
 
-    operator fun times(coefficient: BigInteger): BigPosition = BigPosition(
+    operator fun times(coefficient: BigInteger): BigVec2 = BigVec2(
         x * coefficient,
         y * coefficient
     )
@@ -116,4 +122,21 @@ fun Boolean.toInt(): Int = if (this) 1 else 0
 typealias LMap<A, B> = (List<A>, (A) -> B) -> List<B>
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun <R, F: Function<R>> specify(f: F): F = f
+inline fun <R, F : Function<R>> specify(f: F): F = f
+
+inline fun <A, B, C> Pair<A, B>.mapFirst(transform: (A) -> C): Pair<C, B> = transform(first) to second
+
+fun <T> List<T>.toPair(): Pair<T, T> {
+    require(size == 2) { "Cannot construct pair from $size elements" }
+    return first() to last()
+}
+
+inline fun <reified R> Iterable<*>.singleInstanceOf(): R {
+    var found: Option<R> = None
+    for (e in this) {
+        if (e is R)
+            if (found.isSome()) throw IllegalArgumentException("Collection contains more than one matching element.")
+            else found = Some(e)
+    }
+    return found.getOrNull() ?: throw NoSuchElementException("Collection contains no element matching the predicate.")
+}
