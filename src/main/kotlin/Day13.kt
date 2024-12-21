@@ -8,21 +8,21 @@ object Day13 : AOC(13) {
     override fun part2(input: String): Any = "TODO"
 
 
-    fun parseInput(input: String, offset: BigInteger): Sequence<Arcade> =
+    private fun parseInput(input: String, offset: BigInteger): Sequence<Arcade> =
         Regex("""Button\sA:\sX\+(\d+),\sY\+(\d+)\nButton\sB:\sX\+(\d+),\sY\+(\d+)\nPrize:\sX=(\d+),\sY=(\d+)""")
             .findAll(input)
             .map {
                 val (ax, ay, bx, by, px, py) = it.destructured
                 Arcade(
-                    a = BigPosition(
+                    a = BigVec2(
                         x = ax.toBigInteger(),
                         y = ay.toBigInteger()
                     ),
-                    b = BigPosition(
+                    b = BigVec2(
                         x = bx.toBigInteger(),
                         y = by.toBigInteger()
                     ),
-                    prize = BigPosition(
+                    prize = BigVec2(
                         x = px.toBigInteger() + offset,
                         y = py.toBigInteger() + offset
                     )
@@ -31,16 +31,16 @@ object Day13 : AOC(13) {
 
 }
 
-operator fun BigPosition.div(other: BigPosition): BigInteger? {
+private operator fun BigVec2.div(other: BigVec2): BigInteger? {
     val x = (this.x / other.x).takeIf { this.x % other.x == BigInteger.ZERO } ?: return null
     val y = (this.y / other.y).takeIf { this.y % other.y == BigInteger.ZERO } ?: return null
     return if (x == y) x else null
 }
 
-data class Arcade(
-    val a: BigPosition,
-    val b: BigPosition,
-    val prize: BigPosition
+private data class Arcade(
+    val a: BigVec2,
+    val b: BigVec2,
+    val prize: BigVec2
 ) {
     fun cheapestWin(): BigInteger? {
         val bMax = minOf(prize.x / b.x, prize.y / b.y)

@@ -17,11 +17,11 @@ object Day14 : AOC(14) {
 
     override fun part2(input: String): Any = "TODO"
 
-    fun parseInput(input: String) = Regex("""p=(\d+),(\d+)\sv=(-?\d+),(-?\d+)""")
+    private fun parseInput(input: String) = Regex("""p=(\d+),(\d+)\sv=(-?\d+),(-?\d+)""")
         .findAll(input)
         .map {
             val (px, py, vx, vy) = it.destructured
-            Robot(
+            SecurityRobot(
                 pos = Vec2(
                     px.toInt(),
                     py.toInt()
@@ -34,11 +34,11 @@ object Day14 : AOC(14) {
         }.toList()
 }
 
-data class Robot(
+private data class SecurityRobot(
     val pos: Vec2,
     val velocity: Vec2
 ) {
-    fun move(times: Int, width: Int, height: Int) = Robot(
+    fun move(times: Int, width: Int, height: Int) = SecurityRobot(
         Vec2(
             (pos.x + velocity.x * times).mod(width),
             (pos.y + velocity.y * times).mod(height),
