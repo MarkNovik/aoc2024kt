@@ -1,18 +1,18 @@
-import arrow.core.compose as on
+import Sea.Entity.Type.*
 
 object Day15 : AOC(15) {
     override fun part1(input: String): Int = solve(input, ::parseInputRegular)
 
     override fun part2(input: String): Int = solve(input, ::parseInputWide)
 
-    private inline fun solve(input: String, parser: (String) -> Triple<Sea, List<Offset>, Sea.Submarine>): Int {
+    private inline fun solve(input: String, parser: (String) -> Triple<Sea, List<Offset>, Sea.Entity>): Int {
         val (sea, moves, submarine) = parser(input)
         moves.forEach {
             sea.move(submarine, it)
         }
         return sea.entities
-            .filterIsInstance<Sea.Box>()
-            .sumOf(Sea.Box::gps)
+            .filter { it.type == SmallBox || it.type == BigBoxLeft }
+            .sumOf(Sea.Entity::gps)
     }
 
     private fun parseInputRegular(input: String) = parseInputGeneric(input, ::parseSeaRegular)
@@ -22,10 +22,10 @@ object Day15 : AOC(15) {
     private inline fun parseInputGeneric(
         input: String,
         seaParser: (List<String>) -> Sea
-    ): Triple<Sea, List<Offset>, Sea.Submarine> {
+    ): Triple<Sea, List<Offset>, Sea.Entity> {
         val (map, moves) = input.split(System.lineSeparator().repeat(2)).toPair().mapFirst(String::words)
         val sea = seaParser(map)
-        return Triple(sea, parseMoves(moves), sea.entities.singleInstanceOf<Sea.Submarine>())
+        return Triple(sea, parseMoves(moves), sea.entities.single { it.type == Submarine })
     }
 
     private fun parseSeaRegular(map: List<String>): Sea {
@@ -33,13 +33,13 @@ object Day15 : AOC(15) {
         val width = map[0].length
         val entities = map.flatMapIndexed { y, line ->
             line.mapIndexedNotNull { x, c ->
-                val pos = Vec2(x, y)
-                when (c) {
-                    '#' -> Sea.Wall(pos)
-                    '@' -> Sea.Submarine(pos)
-                    'O' -> Sea.SmallBox(pos)
-                    else -> null
+                val type = when (c) {
+                    '#' -> Wall
+                    '@' -> Submarine
+                    'O' -> SmallBox
+                    else -> return@mapIndexedNotNull null
                 }
+                Sea.Entity(type, Vec2(x, y))
             }
         }.toSet()
         return Sea(width, height, entities)
@@ -52,9 +52,15 @@ object Day15 : AOC(15) {
             line.flatMapIndexed { x, c ->
                 val pos = Vec2(x * 2, y)
                 when (c) {
-                    '#' -> listOf(Sea.Wall(pos), Sea.Wall(pos.copy(x = pos.x + 1)))
-                    '@' -> listOf(Sea.Submarine(pos))
-                    'O' -> Sea.BigBoxLeft(pos).let { listOf(it, it.right) }
+                    '#' -> listOf(Wall(pos), Wall(pos.copy(x = pos.x + 1)))
+                    '@' -> listOf(Submarine(pos))
+                    'O' -> {
+                        val left = BigBoxLeft(pos)
+                        val right = BigBoxRight(pos.copy(x = pos.x + 1))
+                        left.linked = right
+                        right.linked = left
+                        listOf(left, right)
+                    }
                     else -> emptyList()
                 }
             }
@@ -78,17 +84,17 @@ private class Sea(val width: Int, val height: Int, val entities: Set<Entity>) {
     fun move(entity: Entity, dir: Offset, checked: Set<Entity> = emptySet()): Boolean {
         val targetPos = entity.pos + dir
         if (targetPos.outOfBoundsOf(width, height)) return false
-        val next = entities.find(targetPos::equals on Entity::pos)
+        val next = entities.find { it.pos == targetPos }
         if (next in checked) return true
-        return when (next) {
-            is Wall -> false
-            is BigBoxRight -> if (canMove(next, dir) && move(next.left, dir, checked + next)) {
+        return when (next?.type) {
+            Wall -> false
+            BigBoxRight -> if (canMove(next, dir) && move(next.linked, dir, checked + next)) {
                 move(next, dir)
                 entity.pos = targetPos
                 true
             } else false
 
-            is BigBoxLeft -> if (canMove(next, dir) && move(next.right, dir, checked + next)) {
+            BigBoxLeft -> if (canMove(next, dir) && move(next.linked, dir, checked + next)) {
                 move(next, dir)
                 entity.pos = targetPos
                 true
@@ -109,34 +115,29 @@ private class Sea(val width: Int, val height: Int, val entities: Set<Entity>) {
     fun canMove(entity: Entity, dir: Offset, checked: Set<Entity> = emptySet()): Boolean {
         val targetPos = entity.pos + dir
         if (targetPos.outOfBoundsOf(width, height)) return false
-        val next = entities.find(targetPos::equals on Entity::pos)
+        val next = entities.find { it.pos == targetPos }
         if (next != null && next in checked) return true
-        return when (next) {
+        return when (next?.type) {
             null -> true
-            is Wall -> false
-            is BigBoxRight -> canMove(next, dir) && canMove(next.left, dir, checked + next)
-            is BigBoxLeft -> canMove(next, dir) && canMove(next.right, dir, checked + next)
+            Wall -> false
+            BigBoxRight -> canMove(next, dir) && canMove(next.linked, dir, checked + next)
+            BigBoxLeft -> canMove(next, dir) && canMove(next.linked, dir, checked + next)
             else -> canMove(next, dir)
         }
     }
 
-    sealed interface Entity {
-        var pos: Vec2
-    }
+    class Entity(val type: Type, var pos: Vec2) {
+        lateinit var linked: Entity
+        val gps: Int get() = pos.y * 100 + pos.x
 
-    class Submarine(override var pos: Vec2) : Entity
-    class Wall(override var pos: Vec2) : Entity
+        enum class Type {
+            Wall,
+            Submarine,
+            SmallBox,
+            BigBoxLeft,
+            BigBoxRight;
 
-    sealed interface Box : Entity {
-        val gps get() = pos.y * 100 + pos.x
-    }
-
-    class SmallBox(override var pos: Vec2) : Box
-
-    class BigBoxLeft(override var pos: Vec2) : Box {
-        val right = BigBoxRight(pos.copy(x = pos.x + 1), this)
-    }
-    class BigBoxRight(override var pos: Vec2, val left: BigBoxLeft) : Box {
-        override val gps: Int = 0
+            operator fun invoke(pos: Vec2): Entity = Entity(this, pos)
+        }
     }
 }

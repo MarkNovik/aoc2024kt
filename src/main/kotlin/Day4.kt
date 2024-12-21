@@ -1,20 +1,16 @@
-import arrow.core.compose
-import arrow.core.partially1
-import arrow.core.partially3
-
 object Day4 : AOC(4) {
     override fun part1(input: String): Int {
         val mat = parseInput(input)
         return mat.cells()
-            .filter('X'::equals compose Matrix.Cell::value)
+            .filter { it.value == 'X' }
             .sumOf { (pos, _) ->
-                Offset.entries.count(mat::hasXmasAt.partially3("XMAS").partially1(pos))
+                Offset.entries.count { mat.hasXmasAt(pos, it) }
             }
     }
 
     override fun part2(input: String): Any {
         val mat = parseInput(input)
-        return mat.cells().count(mat::hasMasCrossAt compose Matrix.Cell::pos)
+        return mat.cells().count { mat.hasMasCrossAt(it.pos) }
     }
 
     private fun parseInput(input: String) = Matrix(input.lines())

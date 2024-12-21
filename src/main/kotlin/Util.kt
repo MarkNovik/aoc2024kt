@@ -1,10 +1,5 @@
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import java.io.File
 import java.math.BigInteger
-import kotlin.IllegalArgumentException
-import kotlin.NoSuchElementException
 import kotlin.math.abs
 
 data class Vec2(val x: Int, val y: Int) {
@@ -119,24 +114,9 @@ fun <T, U : Comparable<U>> Iterable<T>.minOfNotNullOrNull(transform: (T) -> U?):
 
 fun Boolean.toInt(): Int = if (this) 1 else 0
 
-typealias LMap<A, B> = (List<A>, (A) -> B) -> List<B>
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun <R, F : Function<R>> specify(f: F): F = f
-
 inline fun <A, B, C> Pair<A, B>.mapFirst(transform: (A) -> C): Pair<C, B> = transform(first) to second
 
 fun <T> List<T>.toPair(): Pair<T, T> {
     require(size == 2) { "Cannot construct pair from $size elements" }
     return first() to last()
-}
-
-inline fun <reified R> Iterable<*>.singleInstanceOf(): R {
-    var found: Option<R> = None
-    for (e in this) {
-        if (e is R)
-            if (found.isSome()) throw IllegalArgumentException("Collection contains more than one matching element.")
-            else found = Some(e)
-    }
-    return found.getOrNull() ?: throw NoSuchElementException("Collection contains no element matching the predicate.")
 }

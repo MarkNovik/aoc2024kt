@@ -1,5 +1,4 @@
 import com.github.michaelbull.itertools.pairCombinations
-import arrow.core.partially2 as p2
 
 object Day8 : AOC(8) {
     override fun part1(input: String): Int {
@@ -8,8 +7,8 @@ object Day8 : AOC(8) {
             positions.toList().pairCombinations().flatMap { (a, b) ->
                 val m = b - a
                 listOfNotNull(
-                    (a - m).takeIf(Vec2::inBoundsOf.p2(width).p2(height)),
-                    (b + m).takeIf(Vec2::inBoundsOf.p2(width).p2(height))
+                    (a - m).takeIf { it.inBoundsOf(width, height) },
+                    (b + m).takeIf { it.inBoundsOf(width, height) }
                 )
             }
         }.toSet().count()
@@ -21,8 +20,8 @@ object Day8 : AOC(8) {
             positions.toList().pairCombinations().flatMap { (a, b) ->
                 val m = b - a
                 sequenceOf(
-                    generateSequence(a, (-m)).takeWhile(Vec2::inBoundsOf.p2(width).p2(height)),
-                    generateSequence(b, (+m)).takeWhile(Vec2::inBoundsOf.p2(width).p2(height))
+                    generateSequence(a, (-m)).takeWhile { it.inBoundsOf(width, height) },
+                    generateSequence(b, (+m)).takeWhile { it.inBoundsOf(width, height) }
                 ).flatten()
             }
         }.toSet().count()

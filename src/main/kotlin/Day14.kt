@@ -1,8 +1,3 @@
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.compose
-import arrow.core.none
-
 object Day14 : AOC(14) {
     var width = 101
     var height = 103
@@ -11,7 +6,7 @@ object Day14 : AOC(14) {
         .map { it.move(100, width, height) }
         .groupingBy { it.quadrant(width, height) }
         .eachCount()
-        .filterNot(Option<Int>::isNone compose Map.Entry<Option<Int>, Int>::key)
+        .filter { it.key != null }
         .values.reduce(Int::times)
 
 
@@ -45,7 +40,7 @@ private data class SecurityRobot(
         ), velocity
     )
 
-    fun quadrant(width: Int, height: Int): Option<Int> =
-        if (pos.x == width / 2 || pos.y == height / 2) none()
-        else Some((pos.y > height / 2).toInt().shl(1) + (pos.x > width / 2).toInt())
+    fun quadrant(width: Int, height: Int): Int? =
+        if (pos.x == width / 2 || pos.y == height / 2) null
+        else (pos.y > height / 2).toInt().shl(1) + (pos.x > width / 2).toInt()
 }

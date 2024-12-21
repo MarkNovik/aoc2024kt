@@ -1,5 +1,3 @@
-import arrow.core.compose
-import arrow.core.partially2
 import kotlin.math.sign
 
 object Day2 : AOC(2) {
@@ -11,7 +9,7 @@ object Day2 : AOC(2) {
 
     private fun parseReports(input: String): List<Report> = input
         .lines()
-        .map(specify<_, LMap<String, Int>>(List<String>::map).partially2(String::toInt) compose String::words)
+        .map { it.words().map(String::toInt) }
 
     private fun isConsistent(report: Report): Boolean = report
         .asSequence()

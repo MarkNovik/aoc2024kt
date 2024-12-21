@@ -1,9 +1,7 @@
-import arrow.core.partially2
-
 object Day5 : AOC(5) {
     override fun part1(input: String): Long {
         val (rules, updates) = parseInput(input)
-        return updates.filter(Update::isCorrect.partially2(rules))
+        return updates.filter { it.isCorrect(rules) }
             .sumOf {
                 it[it.size / 2]
             }

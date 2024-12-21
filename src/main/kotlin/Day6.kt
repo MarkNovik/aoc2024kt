@@ -1,18 +1,15 @@
-import arrow.core.compose
-import arrow.core.partially2 as p2
-
 object Day6 : AOC(6) {
     override fun part1(input: String): Int {
         val (map, guard) = parseInput(input)
-        return generateSequence(guard, Guard::advance.p2(map)).distinctBy(Guard::pos).count()
+        return generateSequence(guard) { it.advance(map) }.distinctBy(Guard::pos).count()
     }
 
     override fun part2(input: String): Long {
         val (map, guard) = parseInput(input)
 
-        return (generateSequence(guard, Guard::advance.p2(map)).map(Guard::pos).toSet() - guard.pos)
+        return (generateSequence(guard) { it.advance(map) }.map(Guard::pos).toSet() - guard.pos)
             .parallelStream()
-            .filter(guard::loopsIfPlaceObstacleAt.p2(map))
+            .filter { guard.loopsIfPlaceObstacleAt(it, map) }
             .count()
     }
 
@@ -93,7 +90,7 @@ private data class Guard(val pos: Vec2, val dir: Direction = Direction.Up) {
     fun loopsIfPlaceObstacleAt(pos: Vec2, map: TerritoryMap): Boolean {
         val test = map.withObstacleAt(pos) ?: return false
         val visited = mutableSetOf<Guard>()
-        return generateSequence(this, Guard::advance.p2(test)).any(Boolean::not compose visited::add)
+        return generateSequence(this) { it.advance(test) }.any { !visited.add(it) }
     }
 
     fun targetPosition(): Vec2 = Vec2(pos.x + dir.dx, pos.y + dir.dy)
